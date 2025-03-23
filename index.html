@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .top-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .top-buttons button {
+            background-color: green;
+            color: white;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 20px;
+            margin: 10px auto;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .form-container h2 {
+            text-align: center;
+        }
+
+        .form-container input {
+            width: 94%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-container button {
+            background-color: green;
+            color: white;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .urls-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .url-tile {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 300px;
+            text-align: left;
+        }
+
+        @media (max-width: 600px) {
+            .top-buttons button {
+                width: 90%;
+                font-size: 14px;
+            }
+
+            .form-container {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="shortenForm" class="form-container">
+        <h2>Shorten a URL</h2>
+        <input type="text" id="urlInput" placeholder="Enter URL here">
+        <button id="shortenBtn" onclick="shortenURL()">Shorten URL</button>
+
+    </div>
+
+    <div id="shortUrlContainer"></div>
+    <script>
+        document.getElementById("shortenBtn").onclick = shortenURL;
+        
+        async function shortenURL() {
+    const urlInput = document.getElementById("urlInput");
+    const shortUrlContainer = document.getElementById("shortUrlContainer");
+
+    if (!urlInput) {
+        console.error("Error: Input field not found!");
+        return;
+    }
+
+    const mainURL = urlInput.value.trim();
+    if (!mainURL) {
+        alert("Please enter a URL!");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mainURL: mainURL }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log("Shortened URL:", data.shortURL);
+
+            shortUrlContainer.innerHTML = `
+                <p><strong>Shortened URL:</strong> <a href="${data.shortURL}" target="_blank">${data.shortURL}</a></p>
+            `;
+        } else {
+            console.error("Error shortening URL");
+            shortUrlContainer.innerHTML = `<p style="color: red;">Error shortening URL</p>`;
+        }
+    } catch (error) {
+        console.error("Fetch error:", error);
+        shortUrlContainer.innerHTML = `<p style="color: red;">Server Error: Unable to shorten URL</p>`;
+    }
+}
+
+    </script>
+    
+</body>
+</html>
